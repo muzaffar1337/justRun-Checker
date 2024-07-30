@@ -32,10 +32,10 @@ func commaSeparate(s uint64) string {
 	return commaSeparate(i) + "," + q[n-3:]
 }
 func Dashboard() {
-    tm.Clear()
-    ui.Init()
+	tm.Clear()
+	ui.Init()
 
-    logo := `
+	logo := `
        _                 _     _____                  
       | |               | |   |  __ \                 
       | |  _   _   ___  | |_  | |__) |  _   _   _ __  
@@ -45,35 +45,33 @@ func Dashboard() {
                         Developer: mfr@muzaffar1337                 
     `
 
-    logoLines := len(strings.Split(logo, "\n"))
+	logoLines := len(strings.Split(logo, "\n"))
 
-    for {
-        p0.Border = false
-        p0.Text = fmt.Sprintf("%s\n[$] Att [%s](fg:green) R/S [%s](fg:green) R/L [%s](fg:red) ProxyErr [%s](fg:red) List [%s](fg:green) Accounts [%s](fg:green) Endpoints [%s](fg:blue)",
-            logo,
-            commaSeparate(uint64(Counter.Attempt)),
-            commaSeparate(uint64(Counter.RequestPerSec)),
-            commaSeparate(uint64(Counter.RateLimit)),
-            commaSeparate(uint64(Counter.ProxyError)),
-            commaSeparate(uint64(len(Variables.Users))),
-            commaSeparate(uint64(len(Variables.Accounts))),
-            commaSeparate(uint64(len(Variables.Hosts))),
-        )
+	for {
+		p0.Border = false
+		p0.Text = fmt.Sprintf("%s\n[$] Att [%s](fg:green) R/S [%s](fg:green) R/L [%s](fg:red) ProxyErr [%s](fg:red) List [%s](fg:green) Accounts [%s](fg:green) Endpoints [%s](fg:blue)",
+			logo,
+			commaSeparate(uint64(Counter.Attempt)),
+			commaSeparate(uint64(Counter.RequestPerSec)),
+			commaSeparate(uint64(Counter.RateLimit)),
+			commaSeparate(uint64(Counter.ProxyError)),
+			commaSeparate(uint64(len(Variables.Users))),
+			commaSeparate(uint64(len(Variables.Accounts))),
+			commaSeparate(uint64(len(Variables.Hosts))),
+		)
 
-        // Adjust p0 to fit the logo and the status information
-        p0.SetRect(0, 1, 350, 3 + logoLines + 8) // 3 lines for padding and 8 lines for the status
+		// Adjust p0 to fit the logo and the status information
+		p0.SetRect(0, 1, 350, 3+logoLines+8) // 3 lines for padding and 8 lines for the status
 
-        // Adjust p2 to fit below p0
-        p2.SetRect(0, 3 + logoLines + 8, 300, 500)
+		// Adjust p2 to fit below p0
+		p2.SetRect(0, 3+logoLines+8, 300, 500)
 
-        p2.Text = ActiveLogger
-        p2.Border = false
+		p2.Text = ActiveLogger
+		p2.Border = false
 
-        ui.Render(p0, p2)
-        time.Sleep(10 * time.Millisecond)
-    }
+		ui.Render(p0, p2)
+	}
 }
-
 
 // func Dashboard() {
 // 	tm.Clear()
