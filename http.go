@@ -5,11 +5,45 @@ import (
 	"math/rand"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpproxy"
 )
+
+type Objects struct {
+	client   *sync.Pool
+	request  *sync.Pool
+	response *sync.Pool
+}
+
+func (vars *Objects) create_pool() {
+	vars.client = &sync.Pool{
+		New: func() interface{} {
+			return &fasthttp.Client{
+				TLSConfig: &tls.Config{
+					InsecureSkipVerify: true,
+				},
+				MaxConnsPerHost:     1000,
+				MaxIdleConnDuration: 10 * time.Second,
+				ReadBufferSize:      8192,
+			}
+		},
+	}
+
+	vars.request = &sync.Pool{
+		New: func() interface{} {
+			return fasthttp.AcquireRequest()
+		},
+	}
+
+	vars.response = &sync.Pool{
+		New: func() interface{} {
+			return fasthttp.AcquireResponse()
+		},
+	}
+}
 
 func FastAccCenter() *fasthttp.Request {
 	var Req *fasthttp.Request = fasthttp.AcquireRequest()
@@ -22,8 +56,8 @@ func FastAccCenter() *fasthttp.Request {
 	return Req
 }
 
-func username_suggestions() *fasthttp.Request {
-	Request := fasthttp.AcquireRequest()
+func username_suggestions(vars *Objects) *fasthttp.Request {
+	Request := vars.request.Get().(*fasthttp.Request)
 	Request.Header.SetMethod(fasthttp.MethodPost)
 	Request.SetRequestURI("https://i.instagram.com/api/v1/accounts/username_suggestions/")
 	Request.Header.SetHost("i.instagram.com")
@@ -34,8 +68,8 @@ func username_suggestions() *fasthttp.Request {
 	return Request
 }
 
-func Checkhosts() *fasthttp.Request {
-	Request := fasthttp.AcquireRequest()
+func Checkhosts(vars *Objects) *fasthttp.Request {
+	Request := vars.request.Get().(*fasthttp.Request)
 	Request.Header.SetMethod(fasthttp.MethodPost)
 	Request.SetRequestURI(Variables.host)
 	Request.Header.SetHost(filterHost(Variables.host))

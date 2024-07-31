@@ -24,14 +24,11 @@ var (
 	p2 = widgets.NewParagraph()
 )
 var (
-	Variables = &Global_Variable{}
-	Counter   = &Counters{}
-	Settings  = &ConfigerSettings{}
-	Accounts  []AccountsInfo
-	// fasthttpObjects = &Objects{}
-	Clients_checker  []*fasthttp.Client
-	Clients_checker2 []*fasthttp.Client
-	Clients_checker3 []*fasthttp.Client
+	Variables        = &Global_Variable{}
+	Counter          = &Counters{}
+	Settings         = &ConfigerSettings{}
+	Accounts         []AccountsInfo
+	fasthttpObjects  = &Objects{}
 )
 
 type ConfigerSettings struct {

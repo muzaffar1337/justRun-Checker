@@ -59,26 +59,29 @@ ReP:
 	Variables.MonitorLogger = "[Logger](fg:yellow)~ "
 	Variables.ClaimingLogger = "[Claiming](fg:yellow)~ "
 
+	fasthttpObjects.create_pool()
+
 	go Log()
 	go Dashboard()
 	go Checker_UpdateTextFile()
 	go RequestPerSec()
 	go Checker()
+
 	switch Settings.Mode {
 	case "0":
 		for i := 0; i < pkg.Int(Settings.Routines); i++ {
-			JustRun()
+			JustRun(fasthttpObjects)
 			time.Sleep(1 * time.Millisecond)
 		}
 
 	case "1":
 		for i := 0; i < pkg.Int(Settings.Routines); i++ {
-			JustRun2()
+			JustRun2(fasthttpObjects)
 			time.Sleep(1 * time.Millisecond)
 		}
 	default:
 		for i := 0; i < pkg.Int(Settings.Routines); i++ {
-			JustRun2()
+			JustRun2(fasthttpObjects)
 			time.Sleep(1 * time.Millisecond)
 		}
 	}
