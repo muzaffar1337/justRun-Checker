@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"justRun-Checker/pkg"
+	"log"
 	"math/rand"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
 	"github.com/tidwall/gjson"
 )
-
-var Start time.Time
 
 func main() {
 	var err error
@@ -46,44 +47,61 @@ ReP:
 		fmt.Scanln()
 		goto ReP
 	}
-
-	if Settings.Mode == "" {
-		pkg.PPrint(pkg.GREEN, "Select Mode # Fastest=0 | Normal=1 : ", false)
-		fmt.Scanln(&Settings.Mode)
-	}
-	if Settings.Mode == "0" {
-		go solver()
+ReA:
+	Variables.Sessions, err = pkg.LoadFile("Accounts", "Files/Accounts.txt")
+	if err != nil {
+		pkg.WHITE.Printf("[%s] can't Load Accounts.txt Press Enter to agin Load\n", color.HiRedString("x"))
+		fmt.Scanln()
+		goto ReA
+	} else {
+		for _, i := range Variables.Sessions {
+			Acc := strings.Split(i, "|")
+			if Acc[0] != "" {
+				Variables.Accounts = append(Accounts, AccountsInfo{SessionID: Acc[0], FB_Dtsg: Acc[1], Fbid: Acc[3], Account: i})
+			}
+		}
 	}
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	Variables.MonitorLogger = "[Logger](fg:yellow)~ "
-	Variables.ClaimingLogger = "[Claiming](fg:yellow)~ "
-
+	routines, err := strconv.Atoi(Settings.Routines)
+	if err != nil {
+		log.Fatalf("Invalid number of routines: %v", err)
+	}
 	fasthttpObjects.create_pool()
 
-	go Log()
 	go Dashboard()
-	go Checker_UpdateTextFile()
 	go RequestPerSec()
-	go Checker()
+	Workerpool(routines, fasthttpObjects)
+	select {}
+}
 
-	switch Settings.Mode {
-	case "0":
-		for i := 0; i < pkg.Int(Settings.Routines); i++ {
-			JustRun(fasthttpObjects)
-			time.Sleep(1 * time.Millisecond)
-		}
+func Workerpool(numWorkers int, vars *Objects) {
+	jobQueue := make(chan int, numWorkers)
 
-	case "1":
-		for i := 0; i < pkg.Int(Settings.Routines); i++ {
-			JustRun2(fasthttpObjects)
-			time.Sleep(1 * time.Millisecond)
-		}
-	default:
-		for i := 0; i < pkg.Int(Settings.Routines); i++ {
-			JustRun2(fasthttpObjects)
-			time.Sleep(1 * time.Millisecond)
-		}
+	for i := 0; i < numWorkers; i++ {
+		Synchronise.WG.Add(1)
+		go worker(jobQueue, vars)
 	}
-	fmt.Scanln()
+
+	go func() {
+		jobID := 0
+		for {
+			select {
+			case jobQueue <- jobID:
+				jobID++
+			default:
+				time.Sleep(time.Millisecond)
+			}
+		}
+	}()
+
+	Synchronise.WG.Wait()
+}
+
+func worker(jobQueue <-chan int, vars *Objects) {
+	for jobID := range jobQueue {
+		CheckUser(vars)
+		_ = jobID
+	}
+	Synchronise.WG.Done()
 }

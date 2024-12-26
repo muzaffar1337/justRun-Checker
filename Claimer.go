@@ -14,7 +14,6 @@ import (
 var Acwg sync.WaitGroup
 
 func Claimed(user string) {
-	els := time.Since(Start)
 	for _, Acc := range Variables.Accounts {
 		Variables.ClaimingLogger = fmt.Sprintf("Trying with fbid:%s", Acc.Fbid)
 		req := FastAccCenter()
@@ -32,8 +31,7 @@ func Claimed(user string) {
 		}
 		if err := client.Do(req, res); err == nil {
 			if strings.Contains(string(res.Body()), `"error":null,"ui_response"`) {
-				Variables.ClaimingLogger = fmt.Sprintf("\n@[%s](fg:green) Claimed in %s", user, els.String())
-				description := fmt.Sprintf("[@%s](https://www.instagram.com/%s) Claimed in %s, Att:%d", user, user, els.String(), Counter.Attempt)
+				description := fmt.Sprintf("[@%s](https://www.instagram.com/%s) Claimed\nAtt:%d\nR/s:%d", user, user, Counter.Attempt, Counter.RequestPerSec)
 				Discord.SendMessage(Settings.WebHook, Discord.Message{
 					Embeds: &[]Discord.Embed{{
 						Description: &description,
@@ -43,11 +41,12 @@ func Claimed(user string) {
 				Accounts = RemoveSession(Accounts, Acc)
 				pkg.RemoveFromFile(Acc.SessionID, &Variables.Sessions, "Files/Accounts.txt")
 				break
+			} else if strings.Contains(string(res.Body()), `"Something Went Wrong","description":"Please try again later."`) {
+				continue
 			} else if strings.Contains(string(res.Body()), `"errorSummary":"Sorry`) {
 				Accounts = RemoveSession(Accounts, Acc)
 				pkg.RemoveFromFile(Acc.SessionID, &Variables.Sessions, "Files/Accounts.txt")
 			}
 		}
 	}
-	claiming = false // stop claiming start checking
 }

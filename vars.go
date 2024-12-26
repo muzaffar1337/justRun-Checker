@@ -5,30 +5,23 @@ import (
 	"sync"
 
 	"github.com/gizak/termui/v3/widgets"
-	"github.com/valyala/fasthttp"
 )
 
 var (
 	lock sync.Mutex
-
-	claiming bool = false
 )
-
-type Claiming struct {
-	Username string
-	Wg       sync.WaitGroup
-}
 
 var (
 	p0 = widgets.NewParagraph()
 	p2 = widgets.NewParagraph()
 )
 var (
-	Variables        = &Global_Variable{}
-	Counter          = &Counters{}
-	Settings         = &ConfigerSettings{}
-	Accounts         []AccountsInfo
-	fasthttpObjects  = &Objects{}
+	Variables       = &Global_Variable{}
+	Counter         = &Counters{}
+	Settings        = &ConfigerSettings{}
+	Accounts        []AccountsInfo
+	Synchronise     = &synchronization{}
+	fasthttpObjects = &Objects{}
 )
 
 type ConfigerSettings struct {
@@ -52,11 +45,16 @@ type Counters struct {
 	UsernamesManager int32
 	ProxyManager     int32
 }
+
+type synchronization struct {
+	Swappedmutex sync.Mutex
+	WG           sync.WaitGroup
+}
+
 type Global_Variable struct {
 	Random                                                   *rand.Rand
 	Users, Proxies, Sessions, Hosts                          []string
-	Proxy                                                    []fasthttp.DialFunc
-	host                                                     string
+	Proxy                                                    string
 	Accounts                                                 []AccountsInfo
 	Try, Avliable, MonitorLogger, ClaimingLogger, Hostlogger string
 }

@@ -1,0 +1,12 @@
+POST /api/v1/users/check_username/ HTTP/2
+Host: i.instagram.com
+Upgrade-Insecure-Requests: 1
+User-Agent: Instagram 275.0.0.27.98 Android
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate, br
+Referer: https://i.instagram.com/api/v1/users/check_username
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 12
+
+username=_qv
